@@ -1,0 +1,373 @@
+
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Power Hour</title>
+        <style>
+
+            .contentContainer {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                align-items: center;
+                justify-items: center;
+                padding-top: 30px;
+            }
+            .stoplightContainer {
+                display: grid;
+                grid-template-rows: 1fr 1fr 1fr;
+                background: rgb(0, 0, 0);
+                width: 275px;
+                height: 650px;
+                padding-left: 50px; 
+                padding-top: 50px;
+
+                -webkit-border-radius: 25px;
+                -moz-border-radius: 25px;
+                border-radius: 25px;
+            }
+
+            .whiteLight {
+                width: 200px;
+                height: 200px;
+                -webkit-border-radius: 100px;
+                -moz-border-radius: 100px;
+                border-radius: 100px;
+                background: rgb(255, 255, 255);
+            }
+
+            .redLight {
+                width: 200px;
+                height: 200px;
+                -webkit-border-radius: 100px;
+                -moz-border-radius: 100px;
+                border-radius: 100px;
+                background: red            
+            }
+
+            .yellowLight {
+                width: 200px;
+                height: 200px;
+                -webkit-border-radius: 100px;
+                -moz-border-radius: 100px;
+                border-radius: 100px;
+                background: yellow;
+            }
+
+            .greenLight {
+                width: 200px;
+                height: 200px;
+                -webkit-border-radius: 100px;
+                -moz-border-radius: 100px;
+                border-radius: 100px;
+                background: green;
+            }
+
+            .hidden {
+                visibility: hidden;
+            }
+
+            .visible {
+                visibility: visible;
+            }
+          
+
+            .buttonContainer {
+                display: grid;
+                grid-template-rows: 1fr 1fr;
+                background:rgb(136, 136, 136);
+                outline-width: medium;
+                padding-left: 20px; 
+                padding-top: 20px;
+                padding-right: 20px;
+                padding-bottom: 20px;
+                margin-top: 10px;
+                width: fit-content; 
+            }
+
+            .button {
+                width: 150px;
+                height: 50px;
+            
+                align-self: center;
+            }
+
+            #collen {
+                font-size: 200px;
+                font-weight: bold;
+            } #timerMinutes {
+                font-size: 200px;
+                font-weight: bold;
+            } #timerSeconds {
+                font-size: 200px;
+                font-weight: bold;
+            }
+            #prompt {
+                font-size: 50px;
+                font-weight: bold;
+            } 
+            #title {
+                font-size: 50px;
+                font-weight: bold;
+                padding-left: 20px;
+            } 
+            .myRange {
+                font-weight: bolder;
+            }
+            .intervaultText {
+                font-weight: normal;
+            }
+
+            
+
+            
+
+        </style>
+    </head>
+
+
+
+    <body>
+        
+        <div class="contentContainer">
+            <div class="stoplightContainer">
+                <div class="whiteLight"><div class="redLight" id="redLight"></div></div>
+                <div class="whiteLight"><div class="yellowLight" id="yellowLight"></div></div>
+                <div class="whiteLight"><div class="greenLight" id="greenLight"></div></div>
+            </div>
+
+            <div class="rightScreenContainer">
+                <div id="title">Power Hour</div>
+                <div><span id="timerMinutes">60</span><span id="collen">:</span><span id="timerSeconds">00</span></div>
+                <div id="prompt">The Power Comes From The Hour</div>
+                <div class="buttonContainer">
+                    <div id="intructions">Slide the bar. Press start. Drink everytime you see the green light!</div>
+                    <div class="myRange">
+                        <input class="myRange"type="range" min="0" max="9" value="0" class="slider" id="myRange" onchange="getIntervault()"><span class="intervaultText"> You drink every </span>
+                        <output id="displayedIntervault"  name="number" for="myRange">0</output><span class="intervaultText"> min</span>
+                    </div>
+                    <button onclick="startPowerHour()" class="button" id="startButton">Start</button>
+                    <button onclick="marcelo()" class="button" id="marcelo">Activate M Mode</button>
+                </div>
+            </div> 
+            
+
+        
+
+
+        </div>
+    </body>
+
+
+    <script>
+
+        var capturedIntervault = 0;
+        var slider = document.getElementById("myRange");
+        var displayedIntervault = document.getElementById("displayedIntervault");
+        var vals =[1, 2 ,3 , 4 , 5, 6, 10, 12 , 15, 20];
+
+        var MarceloIsHere = false
+        var marceloButton = document.getElementById("marcelo")
+
+        var timeSec = 60;
+        var timeMin = 60;
+        var timerTimeoutID = null;
+        var timerMinutes = document.getElementById("timerMinutes")
+        var timerSeconds = document.getElementById("timerSeconds")
+        
+        var promptArray = ["Take a shot of liquor", "Take a sip of your drank", "Shotgun!"]
+        var prompt = document.getElementById("prompt")
+        
+        var startButton = document.getElementById("startButton")
+
+        var redLight = document.getElementById("redLight")
+        var yellowLight = document.getElementById("yellowLight")
+        var greenLight = document.getElementById("greenLight")
+        var whiteLight = document.getElementById("whiteLight")
+
+        var numOfGreenLights = 0
+        var greenLightIntervault = 0
+        var multiplier = 0
+
+        var arribaAudio = new Audio('audio/arriba.mp3');
+        var respectTheSipAudio = new Audio('audio/respectTheSip.mp3');
+        var timeCheckAudio = new Audio('audio/timeCheck.mp3');
+
+        var shipsAudio = new Audio('audio/ships.mp3');
+        var buyAudio = new Audio('audio/buy.mp3');
+        var castleAudio = new Audio('audio/castle.mp3');
+        var deadAudio = new Audio('audio/dead.mp3');
+        var enemyAudio = new Audio('audio/enemy.mp3');
+        var eyesAudio = new Audio('audio/eyes.mp3');
+        var flatAudio = new Audio('audio/flat.mp3');
+        var friendsAudio = new Audio('audio/friends.mp3');
+        var fookAudio = new Audio('audio/fu*k.mp3');
+        var genitiliaAudio = new Audio('audio/genitilia.mp3');
+        var honorAudio = new Audio('audio/honor.mp3');
+        var lifeAudio = new Audio('audio/life.mp3');
+        var liquor0Audio = new Audio('audio/liquor0.mp3');
+        var liquor1Audio = new Audio('audio/liquor1.mp3');
+        var marceloAudio = new Audio('audio/marcelo.mp3');
+        var nipplesAudio = new Audio('audio/nipples.mp3');
+        var pintAudio = new Audio('audio/pint.mp3');
+        var oceanAudio = new Audio('audio/ocean.mp3');
+        var positiveAudio = new Audio('audio/positive.mp3');
+        var shipsAudio = new Audio('audio/ships.mp3');
+        var sonsAudio = new Audio('audio/sons.mp3');
+        var thinkingAudio = new Audio('audio/thinking.mp3');
+        var expectationsAudio = new Audio('audio/expectations.mp3');
+        var vodkaAudio = new Audio('audio/vodka.mp3');
+        var wasteAudio = new Audio('audio/waste.mp3');
+        var lifeAudio = new Audio('audio/pint.mp3');
+
+
+        var hourStarted = false
+
+        var audio = {
+            shotAudio: [arribaAudio, vodkaAudio, buyAudio, castleAudio, deadAudio, enemyAudio, eyesAudio, flatAudio, friendsAudio, liquor0Audio, liquor1Audio],
+            sipAudio: [respectTheSipAudio, fookAudio, genitiliaAudio, honorAudio, lifeAudio, marceloAudio, nipplesAudio, pintAudio, oceanAudio],
+            shotgunAudio: [timeCheckAudio, positiveAudio, shipsAudio,sonsAudio, thinkingAudio, expectationsAudio, vodkaAudio, lifeAudio]
+        } 
+
+        function getIntervault() {
+            capturedIntervault = vals[slider.value]
+            displayedIntervault.innerHTML = capturedIntervault
+
+            numOfGreenLights = 60/capturedIntervault
+            intervaultArray = collectIntervaults(numOfGreenLights)
+        }
+
+        function collectIntervaults(size){
+          return Array.from(Array(size), (_, i) => capturedIntervault*i)
+          console.log("CollectInt") // triggers func but no sign in web console??
+        }
+        
+
+        function startPowerHour() {
+
+            if (hourStarted === false) {
+                hourStarted = true
+                startButton.innerHTML = "Reset Hour"
+                toggleRedLight()
+                toggleYellowLight()
+                setTimeout(function() {toggleYellowLight(), toggleGreenLight()}, 2000) // turn off yellow turn on green light after 2 secs
+                setTimeout(function() {startTimer(), displayPrompt()}, 2000) // start timer and display prompt after 2 sec
+                setTimeout(function() {toggleGreenLight(), toggleRedLight()}, 7000) //turn off green turn on red after 7 secs (aka: 5 secs)
+            } else if (hourStarted) {
+                hourStarted = false
+                startButton.innerHTML = "Start Hour"
+                resetClock()
+            }
+           
+        }
+
+        function resetClock() {
+            console.log("Clock reset")
+            clearInterval(timerTimeoutID);
+            timerMinutes.innerHTML = 60;
+            timerSeconds.innerHTML = "00";
+            timeSec = 60;
+            timeMin = 60;
+
+        }
+
+        function marcelo() {
+
+            if (MarceloIsHere === false) { 
+                MarceloIsHere = true
+                marceloButton.innerHTML = "Deactivate M Mode"
+            } else {
+                MarceloIsHere = false
+                marceloButton.innerHTML = "Activate M Mode"
+            }
+
+        }
+
+        function startTimer() {
+            clearInterval(timerTimeoutID)
+            timerTimeoutID = setInterval (updateTime, 1000)
+        }
+
+        function updateTime() {
+            if (timeSec === 0 & timeMin === 0) {
+                console.log("power hour over")
+                marceloAudio.play()
+                marceloAudio.play()
+                marceloAudio.play()
+            } else if (timeSec === 0) {
+                timeSec = 59
+                timerSeconds.innerHTML = timeSec;
+                timeMin -= 1
+                timerMinutes.innerHTML = timeMin
+                lightCountDown()
+            } else if (timeMin === 60) {
+                timeSec = 59
+                timeMin = 59
+                timerSeconds.innerHTML = timeSec
+                timerMinutes.innerHTML = timeMin
+                lightCountDown()
+            } else {
+                timeSec -= 1
+                timerSeconds.innerHTML = timeSec;
+            }
+        }
+        
+
+        function lightCountDown () {
+            if (intervaultArray.includes(timeMin)) {
+                // turn yellow light on
+                setTimeout(function() {toggleRedLight(), toggleYellowLight()}, 57000)
+                // turn green light on
+                setTimeout(function() {toggleYellowLight(), toggleGreenLight(), displayPrompt()}, 60000)
+                // turn red light back on
+                setTimeout(function() {toggleGreenLight(), toggleRedLight()}, 65000)
+            } else {
+                console.log("Don't drink")
+            }
+        }
+
+        function displayPrompt() {
+            var index = Math.floor(Math.random() * 3);
+            prompt.textContent = promptArray[index]
+
+            index = 2
+
+            if (MarceloIsHere) {
+                marceloAudio.play()
+            } else {
+                if (index === 0) { //take a shot
+                audio.shotAudio[Math.floor(Math.random() * audio.shotAudio.length)].play()
+                var outputAudio = audio.shotAudio[Math.floor(Math.random() * audio.shotAudio.length)].play()
+                console.log("shot " + outputAudio)
+                } else if (index === 1) { //take a sip of your drank
+                    audio.sipAudio[Math.floor(Math.random() * audio.sipAudio.length)].play()
+                    console.log("sip " + outputAudio)
+                } else if (index === 2) { //shotgun!
+                    audio.shotgunAudio[Math.floor(Math.random() * audio.shotgunAudio.length)].play()
+                    outputAudio = audio.shotgunAudio[Math.floor(Math.random() * audio.shotgunAudio.length)].play()
+                    console.log("shotgun " + outputAudio)
+                } else {
+                    console.log("Prompt change but could not match audio")
+                }
+            }
+        }
+
+        function toggleRedLight() {
+            redLight.classList.toggle("hidden")
+        }
+
+        function toggleYellowLight() {
+            yellowLight.classList.toggle("hidden")
+        }
+
+        function toggleGreenLight() {
+            greenLight.classList.toggle("hidden")
+        }
+
+        toggleYellowLight()
+        toggleGreenLight()
+
+
+   
+
+    </script>
+</html> 
